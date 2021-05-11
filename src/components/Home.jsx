@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Home = () => {
-  return <Container>sudeep</Container>;
+  return <Container></Container>;
 };
 
 export default Home;
