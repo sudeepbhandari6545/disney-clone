@@ -4,6 +4,7 @@ import Header from './components/Header'
 import Home from './components/Home'
 import { BrowserRouter as Router, Route, Switch, link } from 'react-router-dom'
 import Detail from './components/Detail'
+import Login from './components/Login'
 
 import './App.css'
 
@@ -13,7 +14,10 @@ function App() {
       <Router>
         <Header />
         <Switch>
-          <Route path="detail">
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/detail">
             <Detail />
           </Route>
           <Route path="/">
