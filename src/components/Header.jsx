@@ -1,40 +1,99 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from 'react'
+import styled from 'styled-components'
+import {
+  selectUserName,
+  setUserLogin,
+  selectUserPhoto,
+  setSignOut,
+} from '../features/user/Userslice'
+import { useHistory } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { auth, provider } from '../Firebase'
 
 const Header = () => {
+  const dispatch = useDispatch()
+  const history = useHistory()
+  const userName = useSelector(selectUserName)
+  const userPhoto = useSelector(selectUserPhoto)
+
+  useEffect(() => {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        dispatch(
+          setUserLogin({
+            name: user.displayName,
+            email: user.email,
+            photo: user.photoURL,
+          }),
+        )
+        history.push('/')
+      }
+    })
+  }, [])
+
+  const signIn = () => {
+    auth.signInWithPopup(provider).then((result) => {
+      let user = result.user
+      dispatch(
+        setUserLogin({
+          name: user.displayName,
+          email: user.email,
+          photo: user.photoURL,
+        }),
+      )
+      history.push('/')
+    })
+  }
+  const signOut = () => {
+    auth.signOut().then(() => {
+      dispatch(setSignOut())
+      history.push('/login')
+    })
+  }
   return (
     <Nav>
       <Logo src="/images/logo.svg" />
-      <NavMenu>
-        <a>
-          <img src="/images/home-icon.svg" />
-          <span>HOME</span>
-        </a>
-        <a>
-          <img src="/images/search-icon.svg" />
-          <span>SEARCH</span>
-        </a>
-        <a>
-          <img src="/images/watchlist-icon.svg" />
-          <span>WATCHLIST</span>
-        </a>
-        <a>
-          <img src="/images/original-icon.svg" />
-          <span>ORIGINALS</span>
-        </a>
-        <a>
-          <img src="/images/movie-icon.svg" />
-          <span>MOVIES</span>
-        </a>
-        <a>
-          <img src="/images/series-icon.svg" />
-          <span>SERIES</span>
-        </a>
-      </NavMenu>
-      <UserImg src="https://portotheme.com/html/porto/7.5.0/img/avatars/avatar.jpg" />
+      {!userName ? (
+        <LoginContainer>
+          <Login onClick={signIn}>Login</Login>
+        </LoginContainer>
+      ) : (
+        <>
+          <NavMenu>
+            <a>
+              <img src="/images/home-icon.svg" />
+              <span>HOME</span>
+            </a>
+            <a>
+              <img src="/images/search-icon.svg" />
+              <span>SEARCH</span>
+            </a>
+            <a>
+              <img src="/images/watchlist-icon.svg" />
+              <span>WATCHLIST</span>
+            </a>
+            <a>
+              <img src="/images/original-icon.svg" />
+              <span>ORIGINALS</span>
+            </a>
+            <a>
+              <img src="/images/movie-icon.svg" />
+              <span>MOVIES</span>
+            </a>
+            <a>
+              <img src="/images/series-icon.svg" />
+              <span>SERIES</span>
+            </a>
+          </NavMenu>
+          <UserImg
+            onClick={signOut}
+            src="https://portotheme.com/html/porto/7.5.0/img/avatars/avatar.jpg"
+          />
+        </>
+      )}
     </Nav>
-  );
-};
+  )
+}
 
 export default Header
 
@@ -44,23 +103,23 @@ const Nav = styled.nav`
   display: flex;
   align-items: center;
   padding: 0 36px;
-  overflow-x:hidden;
-`;
+  overflow-x: hidden;
+`
 
 const Logo = styled.img`
   width: 80px;
-`;
+`
 const NavMenu = styled.div`
   display: flex;
   flex: 1;
   margin-left: 25px;
   align-items: center;
- 
+
   a {
     display: flex;
     align-items: center;
     padding: 0 12px;
-    cursor:pointer;
+    cursor: pointer;
     img {
       height: 20px;
     }
@@ -89,12 +148,32 @@ const NavMenu = styled.div`
       }
     }
   }
-`;
+`
 
 const UserImg = styled.img`
   height: 48px;
   width: 48px;
   border-radius: 50%;
   cursor: pointer;
-  
-`;
+`
+
+const Login = styled.div`
+  border: 1px solid #f9f9f9;
+  padding: 8px 16px;
+  border-radius: 4px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background-color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f9f9f9;
+    color: #000;
+    border-color: transparent;
+  }
+`
+const LoginContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+`
